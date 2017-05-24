@@ -83,10 +83,7 @@ public class Main extends Application {
 	}
 
 	public static void updateRectangles() {
-		
 		if (isAlive == 0) {
-			
-		
 			for (int i = 0; i < rectX.length; i++) {
 				rectX[i] -= 2;
 				if (rectX[i] < -200) {
@@ -175,8 +172,7 @@ public class Main extends Application {
 						upperPoles.get(i).setHeight((int) rectHeight[i]);
 						upperPoles.get(i).setFill(Color.FORESTGREEN);
 						root.getChildren().add(upperPoles.get(i));
-
-						}
+						
 					}
 				}
 
