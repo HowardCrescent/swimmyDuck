@@ -18,6 +18,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.Node;
@@ -26,11 +27,13 @@ import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class Main extends Application {
 	public static int Ypos = 300;
@@ -62,11 +65,11 @@ public class Main extends Application {
 			JSONParser parsepatel = new JSONParser();
 			scoreData = (JSONArray) parsepatel.parse(reader);
 			reader.close();
-			for(int i = 0; i < 10; i++){
-				highScore[i] =(long) ((JSONObject) scoreData.get(i)).get("score");
+			for (int i = 0; i < 10; i++) {
+				highScore[i] = (long) ((JSONObject) scoreData.get(i)).get("score");
 			}
 			Arrays.sort(highScore);
-			
+
 		} catch (Exception e) {
 
 			e.printStackTrace();
@@ -76,7 +79,6 @@ public class Main extends Application {
 
 	public static void updateValues() {
 		Ypos += Yspeed;
-
 		if (Yspeed < 7) {
 			Yspeed += 1;
 		}
@@ -85,30 +87,28 @@ public class Main extends Application {
 		}
 		points.setText("Score: " + score);
 	}
-
 	public static void submitScore() {
 		try {
-			
-			for(int i = 0; i < 10 && score > highScore[i]; i++){
-				if(i == 0){
+
+			for (int i = 0; i < 10 && score > highScore[i]; i++) {
+				if (i == 0) {
 					highScore[i] = score;
-				}
-				else{
+				} else {
 					long temp = highScore[i];
-					highScore[i] = highScore[i-1];
-					highScore[i-1] = temp;
+					highScore[i] = highScore[i - 1];
+					highScore[i - 1] = temp;
 				}
 			}
-			
+
 			FileWriter writer = new FileWriter("src/application/highscores.json");
 			JSONArray newHighScores = new JSONArray();
-			for(int i = 0; i < 10; i++){
+			for (int i = 0; i < 10; i++) {
 				JSONObject newScore = new JSONObject();
 				newScore.put("score", highScore[i]);
-				
+
 				newHighScores.add(newScore);
 			}
-			
+
 			writer.write(newHighScores.toJSONString());
 			writer.flush();
 			writer.close();
@@ -116,7 +116,6 @@ public class Main extends Application {
 			e.printStackTrace();
 		}
 	}
-
 
 	public static void updateRectangles() {
 		if (isAlive == 0) {
@@ -240,6 +239,18 @@ public class Main extends Application {
 		player.centerXProperty().bind(root.widthProperty().divide(3));
 		player.setCenterY(Ypos);
 
+		Image duckImage = new Image("images/yellowDuck.png");
+		ImageView duck = new ImageView();
+		duck.setImage(duckImage);
+		duck.setFitWidth(100);
+		duck.setFitHeight(100);
+		duck.setSmooth(true);
+		duck.setCache(true);
+		Rectangle2D viewPort = new Rectangle2D(1,1,Xpos - 25, Ypos - 15);
+		duck.setViewport(viewPort);
+		duck.setRotate(0);
+
+		
 		Label instructions = new Label("Press spacebar");
 		root.getChildren().add(instructions);
 		instructions.resize(150, 60);
@@ -271,8 +282,9 @@ public class Main extends Application {
 				root.getChildren().remove(highs);
 
 				points.resize(200, 60);
-
-				root.getChildren().addAll(player, points);
+				root.getChildren().add(duck);
+				scene.setFill(Color.DEEPSKYBLUE);
+				root.getChildren().add(points);
 				Rectangle a = new Rectangle();
 				Rectangle b = new Rectangle();
 				Rectangle c = new Rectangle();
@@ -328,7 +340,9 @@ public class Main extends Application {
 						BackgroundLogic.logicUpdate();
 						updateValues();
 						updateRectangles();
-
+						duck.setX(Xpos - 15);
+						duck.setY(Ypos - 15);
+						
 						Xpos = (int) root.getWidth() / 3;
 						for (int i = 0; i < upperPoles.size(); i++) {
 							upperPoles.get(i).setX(rectX[i]);
@@ -343,6 +357,7 @@ public class Main extends Application {
 								submitScore();
 								getScores();
 								drawHighScores();
+								root.getChildren().remove(duck);
 								root.getChildren().removeAll(lowerPoles);
 								root.getChildren().removeAll(upperPoles);
 								root.getChildren().removeAll(a, b, c, d, e, f, g, h, l, j);
@@ -376,6 +391,7 @@ public class Main extends Application {
 										score9, score10);
 								stop();
 							}
+
 						}
 					}
 				}.start();
