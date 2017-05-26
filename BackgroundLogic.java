@@ -68,6 +68,12 @@ public class BackgroundLogic extends Main {
 				
 			}
 		}
+		if(hitbox.getCenterY() > 600){
+			isAlive = 1;
+		}
+		if(hitbox.getCenterY() < 0){
+			Yspeed = 0;	
+		}
 		return isAlive;
 	}
 }  
