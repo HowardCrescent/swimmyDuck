@@ -1,5 +1,6 @@
 package application;
 
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import java.util.ArrayList;
 
@@ -19,7 +20,8 @@ public class BackgroundLogic extends Main {
 	private static Rectangle j = new Rectangle();
 	private static ArrayList<Rectangle> upperPoles = new ArrayList<Rectangle>();
 	private static ArrayList<Rectangle> lowerPoles = new ArrayList<Rectangle>();
-	private static Rectangle hitbox = new Rectangle(Xpos-15, Ypos-15, 30, 30);
+	private static Circle hitbox = new Circle(15, 15, 15);
+	
 
 	public static void create() {
 		upperPoles.add(a);
@@ -37,7 +39,7 @@ public class BackgroundLogic extends Main {
 			upperPoles.get(i).setHeight((int) rectHeight[i]);
 			lowerPoles.get(i).setWidth(50);
 			lowerPoles.get(i).setHeight(600);
-			lowerPoles.get(i).setY((int) rectHeight[i] + 150);
+			lowerPoles.get(i).setY((int) rectHeight[i] + 125);
 		}
 	}
 
@@ -47,22 +49,25 @@ public class BackgroundLogic extends Main {
 			upperPoles.get(i).setHeight(rectHeight[i]);
 			lowerPoles.get(i).setX(rectX[i]);
 			lowerPoles.get(i).setHeight(600);
-			lowerPoles.get(i).setY((int) rectHeight[i] + 150);
+			lowerPoles.get(i).setY((int) rectHeight[i] + 125);
 		}
-		hitbox.setX(Xpos-15);
-		hitbox.setY(Ypos-15);
+		hitbox.setCenterX(Xpos);
+		hitbox.setCenterY(Ypos);
 	}
 
 	public static int collisionDetection() {
 		for (int i = 0; i < upperPoles.size(); i++) {
-			if (hitbox.getX() + hitbox.getWidth() > lowerPoles.get(i).getX()
-					&& hitbox.getX() < lowerPoles.get(i).getX() + 50) {
-				if (hitbox.getY() < upperPoles.get(i).getHeight() || hitbox.getY() + 30 > lowerPoles.get(i).getY()) {
+			
+			if (hitbox.getCenterX() + 15 > lowerPoles.get(i).getX()
+					&& hitbox.getCenterX() -15 < lowerPoles.get(i).getX() + 50) {
+				if (hitbox.getCenterY() -15 < upperPoles.get(i).getHeight() 
+						|| hitbox.getCenterY() + 15 > lowerPoles.get(i).getY()) {
 					isAlive = 1;
+					
 				}
 				
 			}
 		}
 		return isAlive;
 	}
-}
+}  
