@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import javafx.scene.paint.Color;
 
 public class BackgroundLogic extends Main {
-
+	//creates all of the variables we need to use in multiple methods
 	private static Rectangle a = new Rectangle();
 	private static Rectangle b = new Rectangle();
 	private static Rectangle c = new Rectangle();
@@ -21,6 +21,7 @@ public class BackgroundLogic extends Main {
 	private static ArrayList<Rectangle> lowerPoles = new ArrayList<Rectangle>();
 	private static Rectangle hitbox = new Rectangle(Xpos - 15, Ypos - 15, 30, 30);
 
+	//creates the hitboxes for the poles
 	public static void create() {
 		upperPoles.add(a);
 		upperPoles.add(b);
@@ -32,6 +33,7 @@ public class BackgroundLogic extends Main {
 		lowerPoles.add(h);
 		lowerPoles.add(i);
 		lowerPoles.add(j);
+		//sets all of the poles' hitbox parameters
 		for (int i = 0; i < upperPoles.size(); i++) {
 			upperPoles.get(i).setWidth(50);
 			upperPoles.get(i).setHeight((int) rectHeight[i]);
@@ -40,7 +42,7 @@ public class BackgroundLogic extends Main {
 			lowerPoles.get(i).setY((int) rectHeight[i] + 150);
 		}
 	}
-
+	//updates all of the hitboxes' positions
 	public static void logicUpdate() {
 		for (int i = 0; i < upperPoles.size(); i++) {
 			upperPoles.get(i).setX(rectX[i]);
@@ -49,15 +51,17 @@ public class BackgroundLogic extends Main {
 			lowerPoles.get(i).setHeight(600);
 			lowerPoles.get(i).setY((int) rectHeight[i] + 150);
 		}
+		//the - 15 is because Xpos and Ypos are the middle of the circle, and hitbox needs to be 
 		hitbox.setX(Xpos - 15);
 		hitbox.setY(Ypos - 15);
 	}
-
+	
+	//detects if the hitbox has hit a boundary or pole
 	public static int collisionDetection() {
 		for (int i = 0; i < upperPoles.size(); i++) {
-			if (hitbox.getX() + hitbox.getWidth() + 30 > lowerPoles.get(i).getX()
+			if (hitbox.getX() + hitbox.getWidth() > lowerPoles.get(i).getX()
 					&& hitbox.getX() < lowerPoles.get(i).getX() + 50) {
-				if (hitbox.getY() < upperPoles.get(i).getHeight() || hitbox.getY() + 30 > lowerPoles.get(i).getY()) {
+				if (hitbox.getY() < upperPoles.get(i).getHeight() || hitbox.getY() + hitbox.getHeight() > lowerPoles.get(i).getY()) {
 					isAlive = 1;
 				}
 			}
