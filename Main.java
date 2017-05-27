@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -36,6 +35,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class Main extends Application {
+	//declares all of the public veriables we need  
 	public static int Ypos = 300;
 	public static JSONArray scoreData = new JSONArray();
 	public static long[] highScore = new long[10];
@@ -58,7 +58,7 @@ public class Main extends Application {
 	public static int[] rectX = { 800, 1000, 1200, 1400, 1600 };
 	public static double[] rectHeight = { Math.random() * 400 + 50, Math.random() * 400 + 50, Math.random() * 400 + 50,
 			Math.random() * 400 + 50, Math.random() * 400 + 50 };
-
+	//reads the JSON file and puts it in an array, then sorts it in descending order for later use
 	public static void getScores() {
 		try {
 			FileReader reader = new FileReader("src/application/highscores.json");
@@ -76,7 +76,7 @@ public class Main extends Application {
 		}
 
 	}
-
+	//updates the position of the circle, as well as updates the score
 	public static void updateValues() {
 		Ypos += Yspeed;
 		if (Yspeed < 7) {
@@ -87,9 +87,10 @@ public class Main extends Application {
 		}
 		points.setText("Score: " + score);
 	}
+	//submits the score to the highscores array, and puts it in descending order
 	public static void submitScore() {
 		try {
-
+			
 			for (int i = 0; i < 10 && score > highScore[i]; i++) {
 				if (i == 0) {
 					highScore[i] = score;
@@ -100,6 +101,7 @@ public class Main extends Application {
 				}
 			}
 
+			//Writes the newly sorted code to the JSON file
 			FileWriter writer = new FileWriter("src/application/highscores.json");
 			JSONArray newHighScores = new JSONArray();
 			for (int i = 0; i < 10; i++) {
@@ -116,7 +118,8 @@ public class Main extends Application {
 			e.printStackTrace();
 		}
 	}
-
+	//updates the positions of the poles, and if a pole has gone past the end of the screen, it moves back
+	//to the start and changes where the gap is to create the illusion of infinite poles
 	public static void updateRectangles() {
 		if (isAlive == 0) {
 			for (int i = 0; i < rectX.length; i++) {
@@ -128,7 +131,7 @@ public class Main extends Application {
 			}
 		}
 	}
-
+	//displays the high scores menu
 	public void drawHighScores() {
 		score1 = new Label("" + highScore[9]);
 		score1.resize(200, 45);
@@ -183,9 +186,9 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-
+		//draws the top 10 scores
 		drawHighScores();
-
+		//creates the numbers to denote places for high scores, and creates a menu button
 		Label num1 = new Label("1");
 		num1.resize(200, 45);
 		Label num2 = new Label("2");
@@ -228,29 +231,20 @@ public class Main extends Application {
 		main.resize(100, 100);
 		main.setLayoutX(150);
 		main.setLayoutY(500);
-
+		
+		//creates the hitboxes
 		BackgroundLogic.create();
+		//creates the stage, pane and scene
 		primaryStage.setTitle("Swimmy Duck");
 		BorderPane root = new BorderPane();
 
 		Scene scene = new Scene(root, 600, 600);
-
+		//creates the drawing of the player, and places it in it's position
 		Circle player = new Circle(15, 15, 15, Color.ORANGE);
 		player.centerXProperty().bind(root.widthProperty().divide(3));
 		player.setCenterY(Ypos);
-
-		Image duckImage = new Image("images/yellowDuck.png");
-		ImageView duck = new ImageView();
-		duck.setImage(duckImage);
-		duck.setFitWidth(100);
-		duck.setFitHeight(100);
-		duck.setSmooth(true);
-		duck.setCache(true);
-		Rectangle2D viewPort = new Rectangle2D(1,1,Xpos - 25, Ypos - 15);
-		duck.setViewport(viewPort);
-		duck.setRotate(0);
-
 		
+		//creates the main menu
 		Label instructions = new Label("Press spacebar");
 		root.getChildren().add(instructions);
 		instructions.resize(150, 60);
@@ -276,14 +270,16 @@ public class Main extends Application {
 
 		sgame.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
+			//once the start game button is pressed, the game environment is constructed
 			public void handle(ActionEvent event) {
+				//removes the main menu
 				root.getChildren().removeAll(sgame, instructions, instructions2, exit, highs);
 				root.getChildren().remove(exit);
 				root.getChildren().remove(highs);
 
 				points.resize(200, 60);
-				root.getChildren().add(duck);
-				scene.setFill(Color.DEEPSKYBLUE);
+				//adds everything needed to the scene
+				root.getChildren().add(player);
 				root.getChildren().add(points);
 				Rectangle a = new Rectangle();
 				Rectangle b = new Rectangle();
@@ -329,6 +325,7 @@ public class Main extends Application {
 						root.getChildren().add(lowerPoles.get(k));
 					}
 				}
+				//this is the player control, and it makes the player bounce up when pressed
 				scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
 
 					if (key.getCode() == KeyCode.SPACE) {
@@ -337,11 +334,10 @@ public class Main extends Application {
 				});
 				new AnimationTimer() {
 					public void handle(long currentNanoTime) {
+						//updates all of the values needed to animate the scene
 						BackgroundLogic.logicUpdate();
 						updateValues();
 						updateRectangles();
-						duck.setX(Xpos - 15);
-						duck.setY(Ypos - 15);
 						
 						Xpos = (int) root.getWidth() / 3;
 						for (int i = 0; i < upperPoles.size(); i++) {
@@ -352,6 +348,8 @@ public class Main extends Application {
 							lowerPoles.get(i).setY((int) rectHeight[i] + 125);
 						}
 						player.setCenterY(Ypos);
+						//this block of code goes back to the high score screen once the player has died
+						//it also resets all of the objects back to their starting places
 						if (BackgroundLogic.collisionDetection() == 1) {
 							if (isAlive == 1) {
 								submitScore();
@@ -379,7 +377,7 @@ public class Main extends Application {
 										Yspeed = 0;
 										Ypos = 300;
 
-										Xpos = 200;
+										Xpos = root.getWidth()/3;
 										for (int i = 0; i < rectX.length; i++) {
 											rectX[i] = 800 + i * 200;
 											rectHeight[i] = Math.random() * 400 + 50;
@@ -397,7 +395,7 @@ public class Main extends Application {
 				}.start();
 			}
 		});
-
+		//this code displays the high score menu when it's button is pressed from the main menu
 		highs.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
